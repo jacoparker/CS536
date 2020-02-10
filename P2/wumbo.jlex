@@ -67,6 +67,7 @@ class CharNum {
 DIGIT=        [0-9]
 SPACE=        [\040\t]
 LETTER=       [a-zA-Z]
+ESCAPE=       [\n\t\'\"\?\\]
 
 %implements java_cup.runtime.Scanner
 %function next_token
@@ -159,6 +160,14 @@ return new Symbol(sym.EOF);
                                   new IdTokenVal(yyline+1, 
                                   CharNum.num,
                                   val));
+            CharNum.num += val.length();
+            return s;
+          }
+
+"\""({LETTER}|{DIGIT}|{SPACE}|{ESCAPE})*"\"" {
+            String val = yytext();
+            Symbol s = new Symbol(sym.STRINGLITERAL,
+                                  new StrLitTokenVal(yyline+1, CharNum.num, val));
             CharNum.num += val.length();
             return s;
           }
