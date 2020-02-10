@@ -49,6 +49,14 @@ class StrLitTokenVal extends TokenVal {
     }
 }
 
+class Helper {
+  public static Symbol createNewTokenVal(int val, int line, int length) {
+    Symbol s = new Symbol(val, new TokenVal(line, CharNum.num));
+    CharNum.num += length;
+    return s;
+  }
+}
+
 // The following class is used to keep track of the character number at which
 // the current token starts on its line.
 class CharNum {
@@ -72,19 +80,8 @@ return new Symbol(sym.EOF);
 
 %%
 
-"bool"    {
-            Symbol s = new Symbol(sym.BOOL, 
-                                  new TokenVal(yyline+1, CharNum.num));
-            CharNum.num += yytext().length();
-            return s;
-          }
-
-"int"     {
-            Symbol s = new Symbol(sym.INT,
-                                  new TokenVal(yyline+1, CharNum.num));
-            CharNum.num += yytext().length();
-            return s;
-          }
+"bool"    {Helper.createNewTokenVal(sym.BOOL, yyline+1, yytext().length());}
+"int"     {Helper.createNewTokenVal(sym.INT, yyline+1, yytext().length());}
 
 "void"    {
             Symbol s = new Symbol(sym.VOID,
@@ -153,6 +150,16 @@ return new Symbol(sym.EOF);
             Symbol s = new Symbol(sym.RETURN,
                                   new TokenVal(yyline+1, CharNum.num));
             CharNum.num += yytext().length();
+            return s;
+          }
+
+({LETTER}|"_")({LETTER}|{DIGIT}|"_")* {
+            String val = yytext();
+            Symbol s = new Symbol(sym.ID,
+                                  new IdTokenVal(yyline+1, 
+                                  CharNum.num,
+                                  val));
+            CharNum.num += val.length();
             return s;
           }
 
