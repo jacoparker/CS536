@@ -174,8 +174,14 @@ return new Symbol(sym.EOF);
           }
 
 {DIGIT}+  { // NOTE: the following computation of the integer value does NOT
-            //       check for overflow.  This must be modified. TODO
-            int val = Integer.parseInt(yytext());
+            //       check for overflow.  This must be modified.
+            int val;
+            try {
+                val = Integer.parseInt(yytext());
+            } catch (NumberFormatException e) {
+                // act accordingly
+                val = Integer.MAX_VALUE;
+            }
             Symbol s = new Symbol(sym.INTLITERAL,
                              new IntLitTokenVal(yyline+1, CharNum.num, val));
             CharNum.num += yytext().length();
@@ -186,7 +192,7 @@ return new Symbol(sym.EOF);
 
 {SPACE}+  { CharNum.num += yytext().length(); }
 
-{COMMENT} {CharNum.num += yytext().length();}
+{COMMENT} { CharNum.num += yytext().length(); }
 
 "{"       {
             Symbol s = new Symbol(sym.LCURLY, new TokenVal(yyline+1, CharNum.num));
