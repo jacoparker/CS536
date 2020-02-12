@@ -68,6 +68,7 @@ DIGIT=        [0-9]
 SPACE=        [\040\t]
 LETTER=       [a-zA-Z]
 ESCAPE=       (\\[nt\'\"\?\\])
+COMMENT=      (///|##)[^\n]*
 
 %implements java_cup.runtime.Scanner
 %function next_token
@@ -184,6 +185,8 @@ return new Symbol(sym.EOF);
 \n        { CharNum.num = 1; }
 
 {SPACE}+  { CharNum.num += yytext().length(); }
+
+{COMMENT} {CharNum.num += yytext().length();}
 
 "{"       {
             Symbol s = new Symbol(sym.LCURLY, new TokenVal(yyline+1, CharNum.num));
