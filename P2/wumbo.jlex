@@ -229,6 +229,13 @@ return new Symbol(sym.EOF);
             return s;
           }
         
+"\""(({ESCAPE})|[^\\\'\"])*\n* {
+            // unterminated string case
+            ErrMsg.warn(yyline+1, CharNum.num,
+                        "unterminated string literal ignored");
+            CharNum.num += yytext().length();
+          }
+
 .         { ErrMsg.fatal(yyline+1, CharNum.num,
                          "ignoring illegal character: " + yytext());
             CharNum.num++;
