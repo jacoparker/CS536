@@ -16,6 +16,31 @@ public class P2 {
         CharNum.num = 1;
     
         // ADD CALLS TO OTHER TEST METHODS HERE
+        // test other files to be input
+        for (String filename : args) {
+            testAllTokens(filename);
+            CharNum.num = 1;
+        }
+    }
+
+    private static void testAllTokens(String filename) throws IOException {
+        // open input and output files
+        FileReader inFile = null;
+        PrintWriter outFile = null;
+        try {
+            inFile = new FileReader(filename);
+            outFile = new PrintWriter(new FileWriter(filename + ".out"));
+        } catch (FileNotFoundException ex) {
+            System.err.println("File " + filename + "not found.");
+            System.exit(-1);
+        } catch (IOException ex) {
+            System.err.println(filename + ".out cannot be opened.");
+            System.exit(-1);
+        }
+
+        scan(inFile, outFile);
+
+        outFile.close();
     }
 
     /**
@@ -42,7 +67,13 @@ public class P2 {
             System.exit(-1);
         }
 
-        // create and call the scanner
+        scan(inFile, outFile);
+        
+        outFile.close();
+    }
+
+    private static void scan(FileReader inFile, PrintWriter outFile) throws IOException {
+        // create and call the scanner!
         Yylex scanner = new Yylex(inFile);
         Symbol token = scanner.next_token();
         while (token.sym != sym.EOF) {
@@ -70,7 +101,7 @@ public class P2 {
                 break;
             case sym.COUT:
                 outFile.println("cout");
-                break;				
+                break;              
             case sym.IF:
                 outFile.println("if");
                 break;
@@ -118,13 +149,13 @@ public class P2 {
                 break;
             case sym.READ:
                 outFile.println(">>");
-                break;				
+                break;              
             case sym.PLUSPLUS:
                 outFile.println("++");
                 break;
             case sym.MINUSMINUS:
                 outFile.println("--");
-                break;	
+                break;  
             case sym.PLUS:
                 outFile.println("+");
                 break;
@@ -164,15 +195,14 @@ public class P2 {
             case sym.GREATEREQ:
                 outFile.println(">=");
                 break;
-			case sym.ASSIGN:
+            case sym.ASSIGN:
                 outFile.println("=");
                 break;
-			default:
-				outFile.println("UNKNOWN TOKEN");
+            default:
+                outFile.println("UNKNOWN TOKEN");
             } // end switch
 
             token = scanner.next_token();
         } // end while
-        outFile.close();
     }
 }
