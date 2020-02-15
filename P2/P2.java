@@ -23,6 +23,16 @@ public class P2 {
         }
     }
 
+    /**
+     * testAllTokens
+     *  ARGS: filename - a string corresponding to the input file to read
+     *
+     * Open and read from file filename
+     * For each token read, write the corresponding string to filename.out
+     * If the input file contains all tokens, one per line, we can verify
+     * correctness of the scanner by comparing the input and output files
+     * (e.g., using a 'diff' command).
+     */
     private static void testAllTokens(String filename) throws IOException {
         // open input and output files
         FileReader inFile = null;
@@ -72,6 +82,15 @@ public class P2 {
         outFile.close();
     }
 
+    /**
+     * scan
+     *
+     * Open and read from file inFile
+     * For each token read, write the corresponding string to outFile
+     * If the input file contains all tokens, one per line, we can verify
+     * correctness of the scanner by comparing the input and output files
+     * (e.g., using a 'diff' command).
+     */
     private static void scan(FileReader inFile, PrintWriter outFile) throws IOException {
         // create and call the scanner!
         Yylex scanner = new Yylex(inFile);
