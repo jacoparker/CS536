@@ -176,11 +176,13 @@ return new Symbol(sym.EOF);
 {DIGIT}+  { // NOTE: the following computation of the integer value does NOT
             //       check for overflow.  This must be modified.
             int val;
-            try {
-                val = Integer.parseInt(yytext());
-            } catch (NumberFormatException e) {
-                // act accordingly
-                val = Integer.MAX_VALUE;
+            double v = Double.parseDouble(yytext());
+            if (v > (double)Integer.MAX_VALUE) {
+              val = Integer.MAX_VALUE;
+              ErrMsg.warn(yyline+1, CharNum.num,
+                "integer literal too large; using max value");
+            } else {
+              val = (int) v;
             }
             Symbol s = new Symbol(sym.INTLITERAL,
                              new IntLitTokenVal(yyline+1, CharNum.num, val));
@@ -228,13 +230,26 @@ return new Symbol(sym.EOF);
             CharNum.num++;
             return s;
           }
-        
+
+"\"".*\\[^nt\\\?\'\"].*"\"" { // invalid escape case
+            ErrMsg.fatal(yyline+1, CharNum.num,
+                        "string literal with bad escaped character ignored");
+            CharNum.num += yytext().length();
+          }
+
 "\""(({ESCAPE})|[^\\\'\"])*\n* {
             // unterminated string case
-            ErrMsg.warn(yyline+1, CharNum.num,
+            ErrMsg.fatal(yyline+1, CharNum.num,
                         "unterminated string literal ignored");
             CharNum.num += yytext().length();
           }
+
+"\"".*\\[^nt\\\?\'\"][^\"]*\n+ {
+            ErrMsg.fatal(yyline+1, CharNum.num,
+                        "unterminated string literal with bad escaped character ignored");
+            CharNum.num += yytext().length();
+          }
+
 
 .         { ErrMsg.fatal(yyline+1, CharNum.num,
                          "ignoring illegal character: " + yytext());
