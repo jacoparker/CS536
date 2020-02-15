@@ -82,8 +82,8 @@ return new Symbol(sym.EOF);
 
 %%
 
-"bool"    {Helper.createNewTokenVal(sym.BOOL, yyline+1, yytext().length());}
-"int"     {Helper.createNewTokenVal(sym.INT, yyline+1, yytext().length());}
+"bool"    {return Helper.createNewTokenVal(sym.BOOL, yyline+1, yytext().length());}
+"int"     {return Helper.createNewTokenVal(sym.INT, yyline+1, yytext().length());}
 
 "void"    {
             Symbol s = new Symbol(sym.VOID,
@@ -165,7 +165,7 @@ return new Symbol(sym.EOF);
             return s;
           }
 
-"\""(({ESCAPE})|[^\\\'\"])*"\"" {  // detects string literals
+"\""(({SPACE})|({ESCAPE})|[^\\\'\"])*"\"" {  // detects string literals
             String val = yytext();
             Symbol s = new Symbol(sym.STRINGLITERAL,
                                   new StrLitTokenVal(yyline+1, CharNum.num, val));
@@ -196,40 +196,31 @@ return new Symbol(sym.EOF);
 
 {COMMENT} { CharNum.num += yytext().length(); }
 
-"{"       {
-            Symbol s = new Symbol(sym.LCURLY, new TokenVal(yyline+1, CharNum.num));
-            CharNum.num++;
-            return s;
-          }
-
-"}"       {Helper.createNewTokenVal(sym.RCURLY, yyline+1, yytext().length());}
-"("       {Helper.createNewTokenVal(sym.LPAREN, yyline+1, yytext().length());}
-")"       {Helper.createNewTokenVal(sym.RPAREN, yyline+1, yytext().length());}
-";"       {Helper.createNewTokenVal(sym.SEMICOLON, yyline+1, yytext().length());}
-","       {Helper.createNewTokenVal(sym.COMMA, yyline+1, yytext().length());}
-"."       {Helper.createNewTokenVal(sym.DOT, yyline+1, yytext().length());}
-"<<"       {Helper.createNewTokenVal(sym.WRITE, yyline+1, yytext().length());}
-">>"       {Helper.createNewTokenVal(sym.READ, yyline+1, yytext().length());}
-"++"       {Helper.createNewTokenVal(sym.PLUSPLUS, yyline+1, yytext().length());}
-"--"       {Helper.createNewTokenVal(sym.MINUSMINUS, yyline+1, yytext().length());}
-"-"       {Helper.createNewTokenVal(sym.MINUS, yyline+1, yytext().length());}
-"*"       {Helper.createNewTokenVal(sym.TIMES, yyline+1, yytext().length());}
-"/"       {Helper.createNewTokenVal(sym.DIVIDE, yyline+1, yytext().length());}
-"!"       {Helper.createNewTokenVal(sym.NOT, yyline+1, yytext().length());}
-"&&"       {Helper.createNewTokenVal(sym.AND, yyline+1, yytext().length());}
-"||"       {Helper.createNewTokenVal(sym.OR, yyline+1, yytext().length());}
-"=="       {Helper.createNewTokenVal(sym.EQUALS, yyline+1, yytext().length());}
-"!="       {Helper.createNewTokenVal(sym.NOTEQUALS, yyline+1, yytext().length());}
-"<"       {Helper.createNewTokenVal(sym.LESS, yyline+1, yytext().length());}
-">"       {Helper.createNewTokenVal(sym.GREATER, yyline+1, yytext().length());}
-"<="       {Helper.createNewTokenVal(sym.LESSEQ, yyline+1, yytext().length());}
-">="       {Helper.createNewTokenVal(sym.GREATEREQ, yyline+1, yytext().length());}
-"="       {Helper.createNewTokenVal(sym.ASSIGN, yyline+1, yytext().length());}
-
-"+"       { Symbol s = new Symbol(sym.PLUS, new TokenVal(yyline+1, CharNum.num));
-            CharNum.num++;
-            return s;
-          }
+"{"        {return Helper.createNewTokenVal(sym.LCURLY, yyline+1, yytext().length());}
+"}"        {return Helper.createNewTokenVal(sym.RCURLY, yyline+1, yytext().length());}
+"("        {return Helper.createNewTokenVal(sym.LPAREN, yyline+1, yytext().length());}
+")"        {return Helper.createNewTokenVal(sym.RPAREN, yyline+1, yytext().length());}
+";"        {return Helper.createNewTokenVal(sym.SEMICOLON, yyline+1, yytext().length());}
+","        {return Helper.createNewTokenVal(sym.COMMA, yyline+1, yytext().length());}
+"."        {return Helper.createNewTokenVal(sym.DOT, yyline+1, yytext().length());}
+"<<"       {return Helper.createNewTokenVal(sym.WRITE, yyline+1, yytext().length());}
+">>"       {return Helper.createNewTokenVal(sym.READ, yyline+1, yytext().length());}
+"++"       {return Helper.createNewTokenVal(sym.PLUSPLUS, yyline+1, yytext().length());}
+"--"       {return Helper.createNewTokenVal(sym.MINUSMINUS, yyline+1, yytext().length());}
+"-"        {return Helper.createNewTokenVal(sym.MINUS, yyline+1, yytext().length());}
+"*"        {return Helper.createNewTokenVal(sym.TIMES, yyline+1, yytext().length());}
+"/"        {return Helper.createNewTokenVal(sym.DIVIDE, yyline+1, yytext().length());}
+"!"        {return Helper.createNewTokenVal(sym.NOT, yyline+1, yytext().length());}
+"&&"       {return Helper.createNewTokenVal(sym.AND, yyline+1, yytext().length());}
+"||"       {return Helper.createNewTokenVal(sym.OR, yyline+1, yytext().length());}
+"=="       {return Helper.createNewTokenVal(sym.EQUALS, yyline+1, yytext().length());}
+"!="       {return Helper.createNewTokenVal(sym.NOTEQUALS, yyline+1, yytext().length());}
+"<"        {return Helper.createNewTokenVal(sym.LESS, yyline+1, yytext().length());}
+">"        {return Helper.createNewTokenVal(sym.GREATER, yyline+1, yytext().length());}
+"<="       {return Helper.createNewTokenVal(sym.LESSEQ, yyline+1, yytext().length());}
+">="       {return Helper.createNewTokenVal(sym.GREATEREQ, yyline+1, yytext().length());}
+"="        {return Helper.createNewTokenVal(sym.ASSIGN, yyline+1, yytext().length());}
+"+"        {return Helper.createNewTokenVal(sym.PLUS, yyline+1, yytext().length());}
 
 "\"".*\\[^nt\\\?\'\"].*"\"" { // invalid escape case
             ErrMsg.fatal(yyline+1, CharNum.num,

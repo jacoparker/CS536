@@ -36,8 +36,11 @@ ErrMsg.class: ErrMsg.java
 # to expected results
 ###
 test:
-	java -cp $(CP) P2 
+	java -cp $(CP) P2 intLitTokens identifiers stringLitTokens
 	diff allTokens.in allTokens.out
+	diff intLitTokens intLitTokens.out
+	diff identifiers identifiers.out
+	diff stringLitTokens stringLitTokens.out
 
 ###
 # clean up
@@ -47,4 +50,4 @@ clean:
 	rm -f *~ *.class wumbo.jlex.java
 
 cleantest:
-	rm -f allTokens.out
+	rm -f *.out

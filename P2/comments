@@ -1,0 +1,9 @@
+/// a valid comment
+## another valid comment
+/// "I can put \" whatever I want here and it doesn't matter
+/// "\n same \\ here "
+///
+////
+/// // ////
+## /// ///
+##
