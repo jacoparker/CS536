@@ -21,6 +21,31 @@ public class P2 {
             testAllTokens(filename);
             CharNum.num = 1;
         }
+
+        testComments();
+        CharNum.num = 1;
+    }
+
+    private static void testComments() throws IOException {
+        // open input and output files
+        FileReader inFile = null;
+        PrintWriter outFile = null;
+        try {
+            inFile = new FileReader("comments");
+            outFile = new PrintWriter(new FileWriter("comments.out"));
+        } catch (FileNotFoundException ex) {
+            System.err.println("File comments not found.");
+            System.exit(-1);
+        } catch (IOException ex) {
+            System.err.println("comments.out cannot be opened.");
+            System.exit(-1);
+        }
+
+        scan(inFile, outFile);
+        outFile.flush();
+        outFile.close();
+        File result = new File("comments.out");
+        assert result.length() == 0 : "Expected empty comments.out file";
     }
 
     /**
