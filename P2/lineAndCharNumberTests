@@ -1,0 +1,7 @@
+"\t" "String literal"
+int identifier 1234
+bool val true
+  	identifier_2 = (5+6-7) && 8;
+/// comment
+## another comment
+"another string lit \n" id || _identifier

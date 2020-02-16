@@ -27,6 +27,141 @@ public class P2 {
 
         testErrorCases();
         CharNum.num = 1;
+
+        testLineAndCharacterNumbers();
+        CharNum.num = 1;
+    }
+
+    /**
+     * testLineAndCharacterNumbers
+     *
+     * Open and read from file lineAndCharNumberTests
+     *
+     * Each line includes various symbols, some symbols being on the same line
+     * separated by spaces much like an actual c++ program. It is assumed that
+     * operator symbols such as && or - do not separate identifiers 
+     */
+    private static void testLineAndCharacterNumbers() throws IOException {
+        FileReader inFile = null;
+        try {
+            inFile = new FileReader("lineAndCharNumberTests");
+        } catch (FileNotFoundException ex) {
+            System.err.println("File lineAndCharNumberTests not found.");
+            System.exit(-1);
+        }
+
+        Yylex scanner = new Yylex(inFile);
+        Symbol token = scanner.next_token();
+        TokenVal ttmp = (TokenVal)token.value;
+        while (token.sym != sym.EOF) {
+            switch (token.sym) {
+                case sym.ID:
+                    IdTokenVal t = (IdTokenVal) ttmp;
+                    if (t.idVal.equals("identifier")) {
+                        assert t.linenum == 2 : "identifier id has incorrect line num";
+                        assert t.charnum == 5 : "identifier id has incorrect char num";
+                    } else if (t.idVal.equals("val")) {
+                        assert t.linenum == 3 : "val id has incorrect line num";
+                        assert t.charnum == 6 : "val id has incorrect char num";
+                    } else if (t.idVal.equals("identifier_2")) {
+                        assert t.linenum == 4 : "identifier_2 id has incorrect line num";
+                        assert t.charnum == 3 : "identifier_2 id has incorrect char num";
+                    } else if (t.idVal.equals("id")) {
+                        assert t.linenum == 7 : "id id has incorrect line num";
+                        assert t.charnum == 25 : "id id has incorrect char num";
+                    } else if (t.idVal.equals("_identifier")) {
+                        assert t.linenum == 7 : "_identifier id has incorrect line num";
+                        assert t.charnum == 31 : "_identifier id has incorrect char num";
+                    } else {
+                        System.err.println("Unknown identifier name: " + t.idVal);
+                    }
+                    break;
+                case sym.STRINGLITERAL:
+                    StrLitTokenVal tstr = (StrLitTokenVal)ttmp;
+                    if (tstr.strVal.equals("\"\\t\"")) {
+                        assert tstr.linenum == 1 : "tab strlit has incorrect line num";
+                        assert tstr.charnum == 1 : "tab strlit has incorrect char num";
+                    } else if (tstr.strVal.equals("\"String literal\"")) {
+                        assert tstr.linenum == 1 : "String literal strlit has incorrect line num";
+                        assert tstr.charnum == 6 : "String literal strlit has incorrect char num";
+                    } else if (tstr.strVal.equals("\"another string lit \\n\"")) {
+                        assert tstr.linenum == 7 : "strlit has incorrect line num";
+                        assert tstr.charnum == 1 : "strlit has incorrect char num";
+                    } else {
+                        System.err.println("Unrecognized string literal: " + tstr.strVal);
+                    }
+                    break;
+                case sym.PLUS:
+                    assert ttmp.linenum == 4 : "PLUS has incorrect line num";
+                    assert ttmp.charnum == 22 : "PLUS has incorrect char num";
+                    break;
+                case sym.MINUS:
+                    assert ttmp.linenum == 4 : "MINUS has incorrect line num";
+                    assert ttmp.charnum == 24 : "MINUS has incorrect char num";
+                    break;
+                case sym.AND:
+                    assert ttmp.linenum == 4 : "AND has incorrect line num";
+                    assert ttmp.charnum == 28 : "AND has incorrect char num";
+                    break;
+                case sym.SEMICOLON:
+                    assert ttmp.linenum == 4 : "SEMICOLON has incorrect line num";
+                    assert ttmp.charnum == 32 : "SEMICOLON has incorrect char num";
+                    break;
+                case sym.TRUE:
+                    assert ttmp.linenum == 3 : "TRUE has incorrect line num";
+                    assert ttmp.charnum == 10 : "TRUE has incorrect char num";
+                    break;
+                case sym.OR:
+                    assert ttmp.linenum == 7 : "OR has incorrect line num";
+                    assert ttmp.charnum == 28 : "OR has incorrect char num";
+                    break;
+                case sym.EQUALS:
+                    assert ttmp.linenum == 4 : "EQUALS has incorrect line num";
+                    assert ttmp.charnum == 18 : "EQUALS has incorrect char num";
+                    break;
+                case sym.INT:
+                    assert ttmp.linenum == 2 : "INT has incorrect line num";
+                    assert ttmp.charnum == 1 : "INT has incorrect char num";
+                    break;
+                case sym.BOOL:
+                    assert ttmp.linenum == 3 : "BOOL has incorrect line num";
+                    assert ttmp.charnum == 1 : "BOOL has incorrect char num";
+                    break;
+                case sym.INTLITERAL:
+                    IntLitTokenVal tint = (IntLitTokenVal) ttmp;
+                    switch (tint.intVal) {
+                        case 1234:
+                            assert tint.linenum == 2 : "1234 has incorrect line num";
+                            assert tint.charnum == 16 : "1234 has incorrect char num";
+                            break;
+                        case 5:
+                            assert tint.linenum == 4 : "5 has incorrect line num";
+                            assert tint.charnum == 21 : "5 has incorrect char num";
+                            break;
+                        case 6:
+                            assert tint.linenum == 4 : "6 has incorrect line num";
+                            assert tint.charnum == 23 : "6 has incorrect char num";
+                            break;
+                        case 7:
+                            assert tint.linenum == 4 : "7 has incorrect line num";
+                            assert tint.charnum == 25 : "7 has incorrect char num";
+                            break;
+                        case 8:
+                            assert tint.linenum == 4 : "8 has incorrect line num";
+                            assert tint.charnum == 31 : "8 has incorrect char num";
+                            break;
+                        default:
+                            System.err.println("Unrecognized intlit: " + tint.intVal);
+                    }
+                    break;
+                default:
+                    System.err.println("Unrecognized token at:");
+                    System.err.println("Line number: " + ttmp.linenum);
+                    System.err.println("Char number: " + ttmp.charnum);
+            }
+            token = scanner.next_token();
+            ttmp = (TokenVal) token.value;
+        }
     }
 
     /**
@@ -69,7 +204,7 @@ public class P2 {
             + "\n6:2 ***ERROR*** ignoring illegal character: @"
             + "\n6:3 ***ERROR*** ignoring illegal character: ^");
 
-        System.out.println("\n\n--- Results ---");
+        System.out.println("--- Results ---");
         scan(inFile, outFile);
         outFile.flush();
         outFile.close();
