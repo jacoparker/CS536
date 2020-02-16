@@ -24,8 +24,65 @@ public class P2 {
 
         testComments();
         CharNum.num = 1;
+
+        testErrorCases();
+        CharNum.num = 1;
     }
 
+    /**
+     * testErrorCases
+     *
+     * Open and read from file errorTestCases
+     * Each line produces a different error message. The output must be inspected
+     * manually and compared to the following to determine proper behavior:
+     *
+     *   1:1 ***ERROR*** unterminated string literal ignored
+     *   2:1 ***ERROR*** unterminated string literal ignored
+     *   3:1 ***ERROR*** string literal with bad escaped character ignored
+     *   4:1 ***ERROR*** unterminated string literal with bad escaped character ignored
+     *   5:1 ***WARNING*** integer literal too large; using max value
+     *   6:1 ***ERROR*** ignoring illegal character: $
+     *   6:2 ***ERROR*** ignoring illegal character: @
+     *   6:3 ***ERROR*** ignoring illegal character: ^ 
+     */
+    private static void testErrorCases() throws IOException {
+        FileReader inFile = null;
+        PrintWriter outFile = null;
+        try {
+            inFile = new FileReader("errorTestCases");
+            outFile = new PrintWriter(new FileWriter("errorTestCases.out"));
+        } catch (FileNotFoundException ex) {
+            System.err.println("File errorTestCases not found.");
+            System.exit(-1);
+        } catch (IOException ex) {
+            System.err.println("errorTestCases.out cannot be opened.");
+            System.exit(-1);
+        }
+
+        System.out.println("--- Expected output ---");
+        System.out.println("1:1 ***ERROR*** unterminated string literal ignored"
+            + "\n2:1 ***ERROR*** unterminated string literal ignored"
+            + "\n3:1 ***ERROR*** string literal with bad escaped character ignored"
+            + "\n4:1 ***ERROR*** unterminated string literal with bad escaped character ignored"
+            + "\n5:1 ***WARNING*** integer literal too large; using max value"
+            + "\n6:1 ***ERROR*** ignoring illegal character: $"
+            + "\n6:2 ***ERROR*** ignoring illegal character: @"
+            + "\n6:3 ***ERROR*** ignoring illegal character: ^");
+
+        System.out.println("\n\n--- Results ---");
+        scan(inFile, outFile);
+        outFile.flush();
+        outFile.close();
+    }
+
+    /**
+     * testComments
+     *
+     * Open and read from file comments
+     * Should read each line as a valid comment and produce an empty file
+     * named comments.out. If the file is not empty, then the test failed
+     * and a comment was interpretted as something else.
+     */
     private static void testComments() throws IOException {
         // open input and output files
         FileReader inFile = null;
