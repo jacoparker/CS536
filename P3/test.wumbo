@@ -1,0 +1,9 @@
+int x;
+int y;
+bool value;
+bool anotherVal;
+void func;
+struct anID {
+	bool v2;
+	int z;
+}
