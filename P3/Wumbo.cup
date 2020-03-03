@@ -86,7 +86,12 @@ non terminal FormalsListNode  formals;
 non terminal FormalsListNode  formalsList;
 non terminal FormalDeclNode   formalDecl;
 non terminal FnBodyNode       fnBody;
-non terminal StmtListNode     stmtList;
+non terminal LinkedList       stmtList;
+non terminal StmtNode         stmt;
+non terminal AssignNode       assignExp;
+non terminal ExpNode          exp;
+non terminal ExpNode          loc;
+non terminal ExpNode          term;
 
 /* Precedences
  *
@@ -161,13 +166,46 @@ formalDecl      ::= type:t id:i
                 :}
                 ;
 
-fnBody          ::= LCURLY RCURLY
-                {: RESULT = new FnBodyNode(new DeclListNode(new LinkedList<DeclNode>()), null);
+fnBody          ::= LCURLY declList:dl stmtList:sl RCURLY
+                {: RESULT = new FnBodyNode(new DeclListNode(dl), new StmtListNode(sl));
                 :}
                 ;
 
 stmtList        ::= /* epsilon */
-                {: RESULT = new StmtListNode(new LinkedList<StmtNode>());
+                {: RESULT = new LinkedList<StmtNode>();
+                :}
+                | stmtList:sl stmt:s
+                {:  sl.addLast(s);
+                    RESULT = sl;
+                :}
+                ;
+
+stmt            ::= assignExp:ae SEMICOLON
+                {: RESULT = new AssignStmtNode(ae);
+                :}
+                ;
+
+assignExp       ::= loc:l ASSIGN exp:e
+                {: RESULT = new AssignNode(l, e);
+                :}
+                ;
+
+exp             ::= assignExp:ae
+                {: RESULT = ae;
+                :}
+                | loc PLUSPLUS SEMICOLON
+                {: // TODO
+                :}
+                | term:t
+                {: RESULT = t;
+                :}
+                ;
+
+term            ::= loc:l
+                {: RESULT = l;
+                :}
+                | INTLITERAL:i
+                {: RESULT = new IntLitNode(i.linenum, i.charnum, i.intVal);
                 :}
                 ;
 
@@ -181,6 +219,14 @@ type            ::= INT
                 |
                 VOID
                 {: RESULT = new VoidNode();
+                :}
+                ;
+
+loc             ::= id:i
+                {: RESULT = i;
+                :}
+                | loc:l DOT id:i
+                {: RESULT = new DotAccessExpNode(l, i);  // TODO
                 :}
                 ;
 

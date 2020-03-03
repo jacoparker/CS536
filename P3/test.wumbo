@@ -1,4 +1,4 @@
-int x;
+int x;  /// simple tests for basic instructions
 int y;
 bool value;
 bool anotherVal;
@@ -8,8 +8,18 @@ struct anID {
 	int z;
 }
 int function() {
-	
+	/// empty function
 }
 bool otherFunction() {
-	
+	/// non empty function tests
+	int num;
+
+	/// test assignment exp node
+	num = 4;
+
+	/// test multiple assignment case
+	x = num = y = z;
+
+	/// test the dot operator
+	x.num.z.value = 200;
 }
