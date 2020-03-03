@@ -32,7 +32,7 @@ bool otherFunction() {
 void testTerms() {
 	/// test the term expansions
 	bool b;
-	
+
 	a = 123;
 
 	str = "literal!";
@@ -46,3 +46,69 @@ void testTerms() {
 
 	result = otherFunction();
 }
+
+void testStmts() {
+	/// post inc
+	a++;
+
+	/// post dec
+	b--;
+
+	/// read in tests - can only read ids
+	cin >> id;
+	cin >> id.subId;
+
+	/// write out tests
+	cout << id;
+	cout << id.subId;
+	cout << a = id;
+	cout << 12;
+	cout << true;
+	cout << "literal";
+	cout << funcCall();
+
+	/// test if statement cases TODO add more expression tests
+	if (true) {
+		int a;
+		bool b;
+
+		func();
+		a = b = funcReturnInt();
+		if (false) {   /// nested conditional
+			b = false;
+			b = funcReturnBool();
+		}
+	}
+
+	if (funcReturningBool()) {
+
+	}
+
+	/// test if else statement cases TODO same as above
+	if (id) {
+		x = 1;
+		y = function();
+	} else {
+		x = 2;
+		y = false;
+		if (function()) {
+			x = 3;
+		} else {
+			x = 4;
+		}
+	}
+
+	if (true) {
+		if (true) {
+			x = false;
+		} else {
+			x = true;
+		}
+	} else {
+		if (false) {
+			x = 1;
+		} else {
+			x = 2;
+		}
+	}
+} 

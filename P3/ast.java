@@ -407,6 +407,9 @@ class PostIncStmtNode extends StmtNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        addIndentation(p, indent);
+        myExp.unparse(p, indent);
+        p.println("++;");
     }
 
     // one child
@@ -419,6 +422,9 @@ class PostDecStmtNode extends StmtNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        addIndentation(p, indent);
+        myExp.unparse(p, indent);
+        p.println("--;");
     }
 
     // one child
@@ -431,6 +437,10 @@ class ReadStmtNode extends StmtNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        addIndentation(p, indent);
+        p.print("cin >> ");
+        myExp.unparse(p, indent);
+        p.println(";");
     }
 
     // one child (actually can only be an IdNode or an ArrayExpNode)
@@ -443,6 +453,10 @@ class WriteStmtNode extends StmtNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        addIndentation(p, indent);
+        p.print("cout << ");
+        myExp.unparse(p, indent);
+        p.println(";");
     }
 
     // one child
@@ -457,6 +471,14 @@ class IfStmtNode extends StmtNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        addIndentation(p, indent);
+        p.print("if (");
+        myExp.unparse(p, indent);
+        p.println(") {");
+        myDeclList.unparse(p, indent+1);
+        myStmtList.unparse(p, indent+1);
+        addIndentation(p, indent);
+        p.println("}");
     }
 
     // three children
@@ -477,6 +499,18 @@ class IfElseStmtNode extends StmtNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        addIndentation(p, indent);
+        p.print("if (");
+        myExp.unparse(p, indent);
+        p.println(") {");
+        myThenDeclList.unparse(p, indent+1);
+        myThenStmtList.unparse(p, indent+1);
+        addIndentation(p, indent);
+        p.println("} else {");
+        myElseDeclList.unparse(p, indent+1);
+        myElseStmtList.unparse(p, indent+1);
+        addIndentation(p, indent);
+        p.println("}");
     }
 
     // five children

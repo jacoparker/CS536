@@ -184,6 +184,37 @@ stmtList        ::= /* epsilon */
 stmt            ::= assignExp:ae SEMICOLON
                 {: RESULT = new AssignStmtNode(ae);
                 :}
+                | loc:l PLUSPLUS SEMICOLON
+                {: RESULT = new PostIncStmtNode(l);
+                :}
+                | loc:l MINUSMINUS SEMICOLON
+                {: RESULT = new PostDecStmtNode(l);
+                :}
+                | CIN READ loc:l SEMICOLON
+                {: RESULT = new ReadStmtNode(l);
+                :}
+                | COUT WRITE exp:e SEMICOLON
+                {: RESULT = new WriteStmtNode(e);
+                :}
+                | IF LPAREN exp:e RPAREN LCURLY declList:dl stmtList:sl RCURLY
+                {: RESULT = new IfStmtNode(e, new DeclListNode(dl), new StmtListNode(sl));
+                :}
+                | IF LPAREN exp:e RPAREN LCURLY declList:dl stmtList:sl RCURLY ELSE LCURLY declList:dl2 stmtList:sl2 RCURLY
+                {: RESULT = new IfElseStmtNode(e, new DeclListNode(dl),
+                    new StmtListNode(sl), new DeclListNode(dl2), new StmtListNode(sl2));
+                :}
+                | WHILE LPAREN exp:e RPAREN LCURLY declList:dl stmtList:sl RCURLY
+                {: // TODO
+                :}
+                |  REPEAT LPAREN exp:e RPAREN LCURLY declList:dl stmtList:sl RCURLY
+                {: // TODO
+                :}
+                |  RETURN exp SEMICOLON
+                {: // TODO
+                :}
+                |  RETURN SEMICOLON
+                {: // TODO
+                :}
                 | fncall:fc SEMICOLON
                 {: RESULT = new CallStmtNode(fc);
                 :}
@@ -196,9 +227,6 @@ assignExp       ::= loc:l ASSIGN exp:e
 
 exp             ::= assignExp:ae
                 {: RESULT = ae;
-                :}
-                | loc PLUSPLUS SEMICOLON
-                {: // TODO
                 :}
                 | term:t
                 {: RESULT = t;
