@@ -161,6 +161,17 @@ class FormalsListNode extends ASTnode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        if (myFormals.size() == 0) return;
+        Iterator it = myFormals.iterator();
+        FormalDeclNode node = null;
+        while (it.hasNext()) {
+            node = (FormalDeclNode)it.next();
+            if (node == ((LinkedList<FormalDeclNode>)myFormals).peekLast())
+                break;
+            node.unparse(p, indent);
+            p.print(", ");
+        }
+        node.unparse(p, indent);
     }
 
     // list of children (FormalDeclNodes)
@@ -174,6 +185,7 @@ class FnBodyNode extends ASTnode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        p.print("\n");
     }
 
     // two children
@@ -247,6 +259,14 @@ class FnDeclNode extends DeclNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        myType.unparse(p, indent);
+        p.print(" ");
+        myId.unparse(p, indent);
+        p.print("(");
+        myFormalsList.unparse(p, indent);
+        p.print(") {\n");
+        myBody.unparse(p, indent+1);
+        p.print("}\n");
     }
 
     // four children
@@ -263,6 +283,9 @@ class FormalDeclNode extends DeclNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        myType.unparse(p, indent);
+        p.print(" ");
+        myId.unparse(p, indent);
     }
 
     // two children

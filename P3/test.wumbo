@@ -7,3 +7,9 @@ struct anID {
 	bool v2;
 	int z;
 }
+int function() {
+	
+}
+bool otherFunction() {
+	
+}
