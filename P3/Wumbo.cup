@@ -29,8 +29,8 @@ public void syntax_error(Symbol currToken) {
 terminal                INT;
 terminal                BOOL;
 terminal                VOID;
-terminal                TRUE;
-terminal                FALSE;
+terminal TokenVal       TRUE;
+terminal TokenVal       FALSE;
 terminal                STRUCT;
 terminal                CIN;
 terminal                COUT;
@@ -92,6 +92,7 @@ non terminal AssignNode       assignExp;
 non terminal ExpNode          exp;
 non terminal ExpNode          loc;
 non terminal ExpNode          term;
+non terminal CallExpNode      fncall;
 
 /* Precedences
  *
@@ -183,6 +184,9 @@ stmtList        ::= /* epsilon */
 stmt            ::= assignExp:ae SEMICOLON
                 {: RESULT = new AssignStmtNode(ae);
                 :}
+                | fncall:fc SEMICOLON
+                {: RESULT = new CallStmtNode(fc);
+                :}
                 ;
 
 assignExp       ::= loc:l ASSIGN exp:e
@@ -206,6 +210,27 @@ term            ::= loc:l
                 :}
                 | INTLITERAL:i
                 {: RESULT = new IntLitNode(i.linenum, i.charnum, i.intVal);
+                :}
+                | STRINGLITERAL:s
+                {: RESULT = new StringLitNode(s.linenum, s.charnum, s.strVal);
+                :}
+                | TRUE:t
+                {: RESULT = new TrueNode(t.linenum, t.charnum);
+                :}
+                | FALSE:f
+                {: RESULT = new FalseNode(f.linenum, f.charnum);
+                :}
+                | LPAREN exp:e RPAREN
+                {: // TODO
+                    RESULT = e; // TEST THIS!!! WHAT DO WE DO HEREEEEEE
+                :}
+                | fncall:fc
+                {: RESULT = fc;
+                :}
+                ;
+
+fncall          ::= id:i LPAREN RPAREN
+                {: RESULT = new CallExpNode(i);
                 :}
                 ;
 

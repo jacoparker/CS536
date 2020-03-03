@@ -1,15 +1,20 @@
-int x;  /// simple tests for basic instructions
+/// simple tests for basic instructions
+int x;
 int y;
 bool value;
 bool anotherVal;
 void func;
+
+/// test struct declaration
 struct anID {
 	bool v2;
 	int z;
 }
+
 int function() {
-	/// empty function
+	/// empty function should be valid
 }
+
 bool otherFunction() {
 	/// non empty function tests
 	int num;
@@ -22,4 +27,22 @@ bool otherFunction() {
 
 	/// test the dot operator
 	x.num.z.value = 200;
+}
+
+void testTerms() {
+	/// test the term expansions
+	bool b;
+	
+	a = 123;
+
+	str = "literal!";
+
+	b = false;
+	b = true;
+
+	exp = (4);
+
+	function();
+
+	result = otherFunction();
 }
