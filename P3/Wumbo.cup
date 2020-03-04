@@ -99,11 +99,32 @@ non terminal CallExpNode      fncall;
  * NOTE: Add precedence and associativity declarations here.
  * TODO write lots of tests for this stuff!!
  *
+ * Assignment is right associative.
+ * 
+ * The dot operator is left associative.
+ * 
+ * The relational and equality operators (<, >, <=, >=, ==, and !=) 
+ * are non-associative (i.e., expressions like a < b < c are not allowed 
+ * and should cause a syntax error).
+ * 
+ * All of the other binary operators are left associative.
+ * 
+ * The unary minus and not (!) operators have the highest precedence, 
+ * then multiplication and division, then addition and subtraction, 
+ * then the relational and equality operators, then the logical and operator 
+ * (&&), then the logical or operator (||), and finally the assignment 
+ * operator (=).
  */
 
-
+precedence right ASSIGN;
+precedence left OR;
+precedence left AND;
+precedence nonassoc LESS, GREATER, LESSEQ, GREATEREQ, EQUALS, NOTEQUALS;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
+precedence right NOT;
+precedence left DOT;
 start with program;
-
 
 /* The grammar with actions
  *
@@ -227,6 +248,48 @@ assignExp       ::= loc:l ASSIGN exp:e
 
 exp             ::= assignExp:ae
                 {: RESULT = ae;
+                :}
+                | exp:e1 PLUS exp:e2
+                {: RESULT = new PlusNode(e1, e2);
+                :}
+                | exp:e1 MINUS exp:e2
+                {: RESULT = new MinusNode(e1, e2); 
+                :}
+                | exp:e1 TIMES exp:e2
+                {: RESULT = new TimesNode(e1, e2);
+                :}
+                | exp:e1 DIVIDE exp:e2
+                {: RESULT = new DivideNode(e1, e2);
+                :}
+                | NOT exp:e 
+                {: RESULT = new NotNode(e);
+                :}
+                | exp:e1 AND exp:e2
+                {: RESULT = new AndNode(e1, e2);
+                :}
+                | exp:e1 OR exp:e2
+                {: RESULT = new OrNode(e1, e2);
+                :}
+                | exp:e1 EQUALS exp:e2
+                {: RESULT = new EqualsNode(e1, e2);
+                :}
+                | exp:e1 NOTEQUALS exp:e2
+                {: RESULT = new NotEqualsNode(e1, e2);
+                :}
+                | exp:e1 LESS exp:e2
+                {: RESULT = new LessNode(e1, e2);
+                :}
+                | exp:e1 GREATER exp:e2
+                {: RESULT = new GreaterNode(e1, e2);
+                :}
+                | exp:e1 LESSEQ exp:e2
+                {: RESULT = new LessEqNode(e1, e2);
+                :}
+                | exp:e1 GREATEREQ exp:e2
+                {: RESULT = new GreaterEqNode(e1, e2);
+                :}
+                | MINUS term:t
+                {: RESULT = new UnaryMinusNode(t);
                 :}
                 | term:t
                 {: RESULT = t;

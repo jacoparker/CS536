@@ -1,2 +1,158 @@
 int x;
 int y;
+bool value;
+bool anotherVal;
+void func;
+struct anID {
+ bool v2;
+ int z;
+}
+int function() {
+}
+bool otherFunction() {
+ int num;
+ num = 4;
+ x = num = y = z;
+ x.num.z.value = 200;
+}
+void testTerms() {
+ bool b;
+ a = 123;
+ str = "literal!";
+ b = false;
+ b = true;
+ exp = 4;
+ function();
+ result = otherFunction();
+}
+void testStmts() {
+ a++;
+ b--;
+ cin >> id;
+ cin >> id.subId;
+ cout << id;
+ cout << id.subId;
+ cout << a = id;
+ cout << 12;
+ cout << true;
+ cout << "literal";
+ cout << funcCall();
+ if (true) {
+  int a;
+  bool b;
+  func();
+  a = b = funcReturnInt();
+  if (false) {
+   b = false;
+   b = funcReturnBool();
+  }
+ }
+ if (funcReturningBool()) {
+ }
+ if (id) {
+  x = 1;
+  y = function();
+ } else {
+  x = 2;
+  y = false;
+  if (function()) {
+   x = 3;
+  } else {
+   x = 4;
+  }
+ }
+ if (true) {
+  if (true) {
+   x = false;
+  } else {
+   x = true;
+  }
+ } else {
+  if (false) {
+   x = 1;
+  } else {
+   x = 2;
+  }
+ }
+ if (true) {
+ } else {
+ }
+ while (x) {
+  int a;
+  int b;
+  bool c;
+  a = b;
+  a = function();
+  functionCall();
+  while (true) {
+   int d;
+   bool f;
+   f = false;
+   d = 1234;
+  }
+  repeat (false) {
+   if (true) {
+    a = 4;
+   } else {
+    a = 3;
+   }
+   if (false) {
+    repeat (var) {
+     var = false;
+     var = true;
+    }
+   }
+  }
+ }
+ while (true) {
+ }
+ repeat (var) {
+  x = 1;
+  y = function();
+ }
+ return functionCall();
+ return 45;
+ return "return val";
+ return ;
+}
+void testExpRules() {
+ a++;
+ id.subId++;
+ a--;
+ id.subId--;
+ a = a + b;
+ a = a + b + c;
+ a = a - b;
+ a = a - b - c;
+ a = a * b;
+ a = a * b * c;
+ a = a / b;
+ a = a / b / c;
+ b =  !(false);
+ b =  !(term);
+ b =  !(funcReturningBool());
+ b = true && boolVal;
+ b = false && false && false;
+ b = true || boolVal;
+ b = false || false || false;
+ if (a == b) {
+ }
+ b = false == x;
+ if (a != b) {
+ }
+ b = false != x;
+ if (a < b) {
+ }
+ b = false < x;
+ if (a > b) {
+ }
+ b = false > x;
+ if (a <= b) {
+ }
+ b = false <= x;
+ if (a >= b) {
+ }
+ b = false >= x;
+ a =  -a;
+ b =  -5;
+}
