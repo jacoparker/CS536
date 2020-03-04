@@ -209,11 +209,11 @@ stmt            ::= assignExp:ae SEMICOLON
                 |  REPEAT LPAREN exp:e RPAREN LCURLY declList:dl stmtList:sl RCURLY
                 {: RESULT = new RepeatStmtNode(e, new DeclListNode(dl), new StmtListNode(sl));
                 :}
-                |  RETURN exp SEMICOLON
-                {: // TODO
+                |  RETURN exp:e SEMICOLON
+                {: RESULT = new ReturnStmtNode(e);
                 :}
                 |  RETURN SEMICOLON
-                {: // TODO
+                {: RESULT = new ReturnStmtNode(new StringLitNode(0, 0, ""));
                 :}
                 | fncall:fc SEMICOLON
                 {: RESULT = new CallStmtNode(fc);
