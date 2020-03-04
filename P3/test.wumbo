@@ -80,7 +80,7 @@ void testStmts() {
 		}
 	}
 
-	if (funcReturningBool()) {
+	if (funcReturningBool()) {  /// test func as exp in conditional
 
 	}
 
@@ -110,5 +110,50 @@ void testStmts() {
 		} else {
 			x = 2;
 		}
+	}
+
+	/// test empty conditionals
+	if (true) {
+
+	} else {
+	
+	}
+
+	/// test the looping rules
+	while (x) {
+		int a;
+		int b;
+		bool c;
+		a = b;
+		a = function();
+		functionCall();
+
+		/// test nesting loops
+		while (true) {
+			int d;
+			bool f;
+			f = false;
+			d = 1234;
+		}
+
+		repeat (false) {
+			if (true) {  /// test nesting the conditionals
+				a = 4;
+			} else {
+				a = 3;
+			}
+
+			if (false) {
+				repeat (var) {
+					var = false;
+					var = true;
+				}
+			}
+		}
+	}
+
+	/// test empty loop
+	while (true) {
+
 	}
 } 

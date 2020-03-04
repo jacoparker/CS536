@@ -529,6 +529,14 @@ class WhileStmtNode extends StmtNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        addIndentation(p, indent);
+        p.print("while (");
+        myExp.unparse(p, indent);
+        p.println(") {");
+        myDeclList.unparse(p, indent+1);
+        myStmtList.unparse(p, indent+1);
+        addIndentation(p, indent);
+        p.println("}");
     }
 
     // three children
@@ -545,6 +553,14 @@ class RepeatStmtNode extends StmtNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
+        addIndentation(p, indent);
+        p.print("repeat (");
+        myExp.unparse(p, indent);
+        p.println(") {");
+        myDeclList.unparse(p, indent+1);
+        myStmtList.unparse(p, indent+1);
+        addIndentation(p, indent);
+        p.println("}");
     }
 
     // three children

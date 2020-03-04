@@ -204,10 +204,10 @@ stmt            ::= assignExp:ae SEMICOLON
                     new StmtListNode(sl), new DeclListNode(dl2), new StmtListNode(sl2));
                 :}
                 | WHILE LPAREN exp:e RPAREN LCURLY declList:dl stmtList:sl RCURLY
-                {: // TODO
+                {: RESULT = new WhileStmtNode(e, new DeclListNode(dl), new StmtListNode(sl));
                 :}
                 |  REPEAT LPAREN exp:e RPAREN LCURLY declList:dl stmtList:sl RCURLY
-                {: // TODO
+                {: RESULT = new RepeatStmtNode(e, new DeclListNode(dl), new StmtListNode(sl));
                 :}
                 |  RETURN exp SEMICOLON
                 {: // TODO
