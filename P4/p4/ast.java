@@ -182,6 +182,12 @@ class FormalsListNode extends ASTnode {
         }
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        Iterator it = myFormals.iterator();
+        while (it.hasNext())
+            ((FormalDeclNode)it.next()).nameAnalyze(symTable);
+    }
+
     private List<FormalDeclNode> myFormals;
 }
 
@@ -194,6 +200,12 @@ class FnBodyNode extends ASTnode {
     public void unparse(PrintWriter p, int indent) {
         myDeclList.unparse(p, indent);
         myStmtList.unparse(p, indent);
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        // ensure that all declarations are valid
+        myDeclList.nameAnalyze(symTable);
+        myStmtList.nameAnalyze(symTable);
     }
 
     private DeclListNode myDeclList;
@@ -210,6 +222,10 @@ class StmtListNode extends ASTnode {
         while (it.hasNext()) {
             it.next().unparse(p, indent);
         }
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+
     }
 
     private List<StmtNode> myStmts;
@@ -306,7 +322,25 @@ class FnDeclNode extends DeclNode {
     }
 
     public void nameAnalyze(SymTable symTable) {
-
+        String type = myType.getType();
+        // ensure function name is not in use with same params
+        Sym sym = new FnSym(type, null);  // TODO change from null
+        try {
+            symTable.addDecl(myId.getMyStrVal(), sym);
+        } catch (DuplicateSymException e) {
+            ErrMsg.fatal(myId.getMyLineNum(), myId.getMyCharNum(), "Multiply declared identifier");
+        } catch (EmptySymTableException e) {}
+        // Then we add a new scope with params declared in it, even if an
+        // error occurred.
+        symTable.addScope();
+        myFormalsList.nameAnalyze(symTable);
+        myBody.nameAnalyze(symTable);
+        try {
+            symTable.removeScope();
+        } catch (EmptySymTableException e) {
+            // should still have the scope from before, the function's scope
+            System.err.println(e.toString());
+        }
     }
 
     private TypeNode myType;
@@ -328,7 +362,14 @@ class FormalDeclNode extends DeclNode {
     }
 
     public void nameAnalyze(SymTable symTable) {
-
+        String type = myId.getMyStrVal();
+        Sym sym = new Sym(myType.getType());
+        try {
+            symTable.addDecl(type, sym);
+        } catch (DuplicateSymException e) {
+            // another formal already has this name, do not add it to table
+            ErrMsg.fatal(myId.getMyLineNum(), myId.getMyCharNum(), "Multiply declared identifier");
+        } catch (EmptySymTableException e) {}
     }
 
     private TypeNode myType;
@@ -364,6 +405,7 @@ class StructDeclNode extends DeclNode {
 // **********************************************************************
 
 abstract class TypeNode extends ASTnode {
+    abstract public String getType();
 }
 
 class IntNode extends TypeNode {
@@ -373,6 +415,8 @@ class IntNode extends TypeNode {
     public void unparse(PrintWriter p, int indent) {
         p.print("int");
     }
+
+    public String getType() { return "int"; }
 }
 
 class BoolNode extends TypeNode {
@@ -382,6 +426,8 @@ class BoolNode extends TypeNode {
     public void unparse(PrintWriter p, int indent) {
         p.print("bool");
     }
+
+    public String getType() { return "bool"; }
 }
 
 class VoidNode extends TypeNode {
@@ -391,6 +437,8 @@ class VoidNode extends TypeNode {
     public void unparse(PrintWriter p, int indent) {
         p.print("void");
     }
+
+    public String getType() { return "void"; }
 }
 
 class StructNode extends TypeNode {
@@ -402,6 +450,8 @@ class StructNode extends TypeNode {
         p.print("struct ");
         myId.unparse(p, 0);
     }
+
+    public String getType() { return myId.getMyStrVal(); }
 
     private IdNode myId;
 }
