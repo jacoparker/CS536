@@ -131,6 +131,10 @@ class ProgramNode extends ASTnode {
         myDeclList.unparse(p, indent);
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        myDeclList.nameAnalyze(symTable);
+    }
+
     private DeclListNode myDeclList;
 }
 
@@ -148,6 +152,14 @@ class DeclListNode extends ASTnode {
         } catch (NoSuchElementException ex) {
             System.err.println("unexpected NoSuchElementException in DeclListNode.print");
             System.exit(-1);
+        }
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        // ensure declarations are valid!
+        Iterator it = myDecls.iterator();
+        while (it.hasNext()) {
+            ((DeclNode)it.next()).nameAnalyze(symTable);
         }
     }
 
@@ -227,6 +239,7 @@ class ExpListNode extends ASTnode {
 // **********************************************************************
 
 abstract class DeclNode extends ASTnode {
+    abstract public void nameAnalyze(SymTable symTable);
 }
 
 class VarDeclNode extends DeclNode {
@@ -242,6 +255,24 @@ class VarDeclNode extends DeclNode {
         p.print(" ");
         myId.unparse(p, 0);
         p.println(";");
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        Sym symbol;
+        if (myType instanceof IntNode) {
+            symbol = new Sym("int");
+        } else {
+            symbol = new Sym("bool");
+        }
+        try {
+            symTable.addDecl(myId.getMyStrVal(), symbol);
+        } catch (DuplicateSymException e) {
+            // multiple declarations! Log error. TODO
+            ErrMsg.fatal(myId.getMyLineNum(), myId.getMyCharNum(), "Multiply declared identifier");
+        } catch (EmptySymTableException e) {
+            // do nothing since this means there was clearly no
+            System.err.println(e.toString());
+        }
     }
 
     private TypeNode myType;
@@ -274,6 +305,10 @@ class FnDeclNode extends DeclNode {
         p.println("}\n");
     }
 
+    public void nameAnalyze(SymTable symTable) {
+
+    }
+
     private TypeNode myType;
     private IdNode myId;
     private FormalsListNode myFormalsList;
@@ -290,6 +325,10 @@ class FormalDeclNode extends DeclNode {
         myType.unparse(p, 0);
         p.print(" ");
         myId.unparse(p, 0);
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+
     }
 
     private TypeNode myType;
@@ -310,6 +349,9 @@ class StructDeclNode extends DeclNode {
         myDeclList.unparse(p, indent+4);
         addIndentation(p, indent);
         p.println("};\n");
+    }
+
+    public void nameAnalyze(SymTable symTable) {
 
     }
 
@@ -652,15 +694,27 @@ class IdNode extends ExpNode {
         myLineNum = lineNum;
         myCharNum = charNum;
         myStrVal = strVal;
+        this.link = null;
+    }
+
+    public IdNode(int lineNum, int charNum, String strVal, Sym link) {
+        this(lineNum, charNum, strVal);
+        this.link = link;
     }
 
     public void unparse(PrintWriter p, int indent) {
         p.print(myStrVal);
     }
 
+    // add getters
+    public int getMyLineNum() { return this.myLineNum; }
+    public int getMyCharNum() { return this.myCharNum; }
+    public String getMyStrVal() { return this.myStrVal; }
+
     private int myLineNum;
     private int myCharNum;
     private String myStrVal;
+    Sym link;
 }
 
 class DotAccessExpNode extends ExpNode {

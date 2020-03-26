@@ -25,19 +25,19 @@ public class Sym {
 * the list of symbols which are in the argument list.
 */
 class FnSym extends Sym {
-    private Sym[] arguments;
+    private String[] arguments;
 
-    public FnSym(String type, Sym[] argsuments) {
+    public FnSym(String type, String[] arguments) {
         super(type);
         this.arguments = arguments;
     }
 
     @Override
     public String toString() {
-        Sym[] args = getArguments();
+        String[] args = getArguments();
         StringBuilder sb = new StringBuilder();
         for (int i=0, n=args.length-1; i<n; i++) {
-            sb.append(args[i].getType());
+            sb.append(args[i]);
             sb.append(", ");
         }
         if (args.length != 0)
@@ -47,7 +47,7 @@ class FnSym extends Sym {
         return sb.toString();
     }
 
-    public Sym[] getArguments() {
+    public String[] getArguments() {
         return this.arguments;
     }
 }
@@ -57,9 +57,10 @@ class FnSym extends Sym {
 *
 */
 class StructDefSym extends Sym {
-    private HashMap<String, Sym> fields;
+    // map of names of vars and their types
+    private HashMap<String, String> fields;
 
-    public StructDefSym(String type, HashMap<String, Sym> fields) {
+    public StructDefSym(String type, HashMap<String, String> fields) {
         super(type);
         this.fields = fields;
     }
@@ -69,7 +70,7 @@ class StructDefSym extends Sym {
         return "struct " + getType();
     }
 
-    public HashMap<String, Sym> getFields() {
+    public HashMap<String, String> getFields() {
         return this.fields;
     }
 }
