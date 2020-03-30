@@ -1,1 +1,50 @@
+/// test multiply named primitives
 int x;
+bool x;
+
+/// test multiply named formals
+void testMultiplyNamedFormals(int x, bool x) {
+	/// nothing
+}
+
+/// test multiply named formals and locals
+void testMultiplyNamedFormalsAndLocals(int x) {
+	int x;  /// second name for x
+}
+
+/// test having multiple locals with the same name
+void testMultiplyNamdLocals() {
+	int x;
+	int x;
+}
+
+/// test multiple functions in the same scope with the same name
+void testSameName() {
+}
+void testSameName() {
+}
+
+/// test a function having same name as variable in same scope
+void x() {
+}
+
+/// test usage of a variable that is not declared in expression
+void testUndeclaredUsageAnalysis() {
+	x = undeclared + x;
+}
+
+/// test assignment to an undeclared variable
+void testUndeclaredAssignment() {
+	undeclared = 10;
+}
+
+/// test usage of undeclared function call
+void testUndeclaredFunc() {
+	undeclared();
+}
+
+/// test usage of undeclared formal
+void testUndeclaredFormal(int num) {
+	testUndeclaredFormal(undeclaredNum);
+}
+

@@ -225,7 +225,9 @@ class StmtListNode extends ASTnode {
     }
 
     public void nameAnalyze(SymTable symTable) {
-
+        Iterator it = myStmts.iterator();
+        while (it.hasNext())
+            ((StmtNode)it.next()).nameAnalyze(symTable);
     }
 
     private List<StmtNode> myStmts;
@@ -245,6 +247,12 @@ class ExpListNode extends ASTnode {
                 it.next().unparse(p, indent);
             }
         }
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        Iterator it = myExps.iterator();
+        while(it.hasNext())
+            ((ExpNode)it.next()).nameAnalyze(symTable);
     }
 
     private List<ExpNode> myExps;
@@ -274,12 +282,8 @@ class VarDeclNode extends DeclNode {
     }
 
     public void nameAnalyze(SymTable symTable) {
-        Sym symbol;
-        if (myType instanceof IntNode) {
-            symbol = new Sym("int");
-        } else {
-            symbol = new Sym("bool");
-        }
+        String type = myType.getType();
+        Sym symbol = new Sym(type);
         try {
             symTable.addDecl(myId.getMyStrVal(), symbol);
         } catch (DuplicateSymException e) {
@@ -393,7 +397,7 @@ class StructDeclNode extends DeclNode {
     }
 
     public void nameAnalyze(SymTable symTable) {
-
+        // TODO
     }
 
     private IdNode myId;
@@ -461,6 +465,7 @@ class StructNode extends TypeNode {
 // **********************************************************************
 
 abstract class StmtNode extends ASTnode {
+    abstract public void nameAnalyze(SymTable symTable);
 }
 
 class AssignStmtNode extends StmtNode {
@@ -472,6 +477,10 @@ class AssignStmtNode extends StmtNode {
         addIndentation(p, indent);
         myAssign.unparse(p, -1); // no parentheses
         p.println(";");
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        myAssign.nameAnalyze(symTable);
     }
 
     private AssignNode myAssign;
@@ -488,6 +497,10 @@ class PostIncStmtNode extends StmtNode {
         p.println("++;");
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        myExp.nameAnalyze(symTable);
+    }
+
     private ExpNode myExp;
 }
 
@@ -500,6 +513,10 @@ class PostDecStmtNode extends StmtNode {
         addIndentation(p, indent);
         myExp.unparse(p, 0);
         p.println("--;");
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        myExp.nameAnalyze(symTable);
     }
 
     private ExpNode myExp;
@@ -517,6 +534,10 @@ class ReadStmtNode extends StmtNode {
         p.println(";");
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        myExp.nameAnalyze(symTable);
+    }
+
     // 1 child (actually can only be an IdNode or an ArrayExpNode)
     private ExpNode myExp;
 }
@@ -531,6 +552,10 @@ class WriteStmtNode extends StmtNode {
         p.print("cout << ");
         myExp.unparse(p, 0);
         p.println(";");
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        myExp.nameAnalyze(symTable);
     }
 
     private ExpNode myExp;
@@ -552,6 +577,23 @@ class IfStmtNode extends StmtNode {
         myStmtList.unparse(p, indent+4);
         addIndentation(p, indent);
         p.println("}");
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        // check expression (conditional) for undeclared usages
+        myExp.nameAnalyze(symTable);
+        // open a new scope
+        symTable.addScope();
+        // check the declarations
+        myDeclList.nameAnalyze(symTable);
+        // check for undeclared usages
+        myStmtList.nameAnalyze(symTable);
+        // don't forget to remove the scope!
+        try {
+            symTable.removeScope();
+        } catch (EmptySymTableException e) {
+            System.err.println(e.toString());
+        }
     }
 
     private ExpNode myExp;
@@ -587,6 +629,29 @@ class IfElseStmtNode extends StmtNode {
         p.println("}");
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        // check expression (conditional) for undeclared usages
+        myExp.nameAnalyze(symTable);
+        // first scope - scope of the if statement
+        symTable.addScope();
+        myThenDeclList.nameAnalyze(symTable);
+        myThenStmtList.nameAnalyze(symTable);
+        try {
+            symTable.removeScope();
+        } catch (EmptySymTableException e) {
+            System.err.println(e.toString());
+        }
+        // second scope - scope of the else statement
+        symTable.addScope();
+        myElseDeclList.nameAnalyze(symTable);
+        myElseStmtList.nameAnalyze(symTable);
+        try {
+            symTable.removeScope();
+        } catch (EmptySymTableException e) {
+            System.err.println(e.toString());
+        }
+    }
+
     private ExpNode myExp;
     private DeclListNode myThenDeclList;
     private StmtListNode myThenStmtList;
@@ -612,6 +677,20 @@ class WhileStmtNode extends StmtNode {
         p.println("}");
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        // check expression (conditional) for undeclared usages
+        myExp.nameAnalyze(symTable);
+        // go into while scope and check for multiply declared and undeclared
+        symTable.addScope();
+        myDeclList.nameAnalyze(symTable);
+        myStmtList.nameAnalyze(symTable);
+        try {
+            symTable.removeScope();
+        } catch (EmptySymTableException e) {
+            System.err.println(e.toString());
+        }
+    }
+
     private ExpNode myExp;
     private DeclListNode myDeclList;
     private StmtListNode myStmtList;
@@ -635,6 +714,20 @@ class RepeatStmtNode extends StmtNode {
         p.println("}");
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        // check expression (conditional) for undeclared usages
+        myExp.nameAnalyze(symTable);
+        // go into repeat scope and check for bad usages
+        symTable.addScope();
+        myDeclList.nameAnalyze(symTable);
+        myStmtList.nameAnalyze(symTable);
+        try {
+            symTable.removeScope();
+        } catch (EmptySymTableException e) {
+            System.err.println(e.toString());
+        }
+    }
+
     private ExpNode myExp;
     private DeclListNode myDeclList;
     private StmtListNode myStmtList;
@@ -649,6 +742,11 @@ class CallStmtNode extends StmtNode {
         addIndentation(p, indent);
         myCall.unparse(p, indent);
         p.println(";");
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        // check expression for bad usages
+        myCall.nameAnalyze(symTable);
     }
 
     private CallExpNode myCall;
@@ -669,6 +767,12 @@ class ReturnStmtNode extends StmtNode {
         p.println(";");
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        // check expression for bad usages
+        if (myExp != null)
+            myExp.nameAnalyze(symTable);
+    }
+
     private ExpNode myExp; // possibly null
 }
 
@@ -677,6 +781,7 @@ class ReturnStmtNode extends StmtNode {
 // **********************************************************************
 
 abstract class ExpNode extends ASTnode {
+    public void nameAnalyze(SymTable symTable) {}  // does nothing by default
 }
 
 class IntLitNode extends ExpNode {
@@ -756,6 +861,17 @@ class IdNode extends ExpNode {
         p.print(myStrVal);
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        // find link and assign
+        try {
+            this.link = symTable.lookupGlobal(myStrVal);
+        } catch (EmptySymTableException e) {
+            System.err.println(e.toString());
+        }
+        if (link == null)
+            ErrMsg.fatal( myLineNum, myCharNum, "Undeclared Identifier");
+    }
+
     // add getters
     public int getMyLineNum() { return this.myLineNum; }
     public int getMyCharNum() { return this.myCharNum; }
@@ -798,6 +914,12 @@ class AssignNode extends ExpNode {
         if (indent != -1)  p.print(")");
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        // ensure that all idNodes in lhs and rhs are declared already
+        myLhs.nameAnalyze(symTable);
+        myExp.nameAnalyze(symTable);
+    }
+
     private ExpNode myLhs;
     private ExpNode myExp;
 }
@@ -822,6 +944,13 @@ class CallExpNode extends ExpNode {
         p.print(")");
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        // ensure the ID of function we are calling is valid
+        myId.nameAnalyze(symTable);
+        if (myExpList != null)
+            myExpList.nameAnalyze(symTable);
+    }
+
     private IdNode myId;
     private ExpListNode myExpList;  // possibly null
 }
@@ -831,6 +960,10 @@ abstract class UnaryExpNode extends ExpNode {
         myExp = exp;
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        myExp.nameAnalyze(symTable);
+    }
+
     protected ExpNode myExp;
 }
 
@@ -838,6 +971,11 @@ abstract class BinaryExpNode extends ExpNode {
     public BinaryExpNode(ExpNode exp1, ExpNode exp2) {
         myExp1 = exp1;
         myExp2 = exp2;
+    }
+
+    public void nameAnalyze(SymTable symTable) {
+        myExp1.nameAnalyze(symTable);
+        myExp2.nameAnalyze(symTable);
     }
 
     protected ExpNode myExp1;
