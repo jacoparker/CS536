@@ -1,3 +1,12 @@
+
+/// test whether most recent scope var is used
+int val;
+void testMostRecentScopeUsage() {
+	/// declare a bool var called val. When used, the type should be bool!
+	bool val;
+	val = true;  /// get (bool) here not (int)
+}
+
 /// test whether correct variable types are printed
 void testBasicSymType() {
 	int x;
@@ -18,4 +27,53 @@ int testReturnAndArgTypes(int a, int b, bool c) {
 /// test function with no args
 void testReturnNoArg() {
 	testReturnNoArg();
+}
+
+/// test if statement
+void testIfStatement() {
+	/// test the conditional exp
+	bool val;
+	int x;
+	val = true;
+	if (val && true || false) {
+		bool x;  /// another x
+		bool val;
+		x = false;
+		val = true;
+		x = x || val;
+	}
+}
+
+/// test if else statement
+void testIfElseStatement() {
+	/// test the conditional exp
+	bool val;
+	int x;
+	val = true;
+	if (val && true || false) {
+		bool x;  /// another x
+		bool val;
+		x = false;
+		val = true;
+		x = x || val;
+	} else {
+		bool x;  /// another x
+		int val;
+		val = 5 + x - x * 10;
+		x = val && val || x;
+	}
+}
+
+/// test while statement scope
+void testWhileStatement(bool a, bool b, bool c) {
+	while (a && (b || c)) {
+		int val;
+		val = 0;
+		a = (val == 10);
+		val++;
+	}
+}
+
+/// test a function with the same name as a variable inside
+int test(int test) {
 }
