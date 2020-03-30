@@ -48,3 +48,12 @@ void testUndeclaredFormal(int num) {
 	testUndeclaredFormal(undeclaredNum);
 }
 
+/// test variable declared with void type
+void testVoidVariable() {
+	void var;
+}
+
+/// test a void formal type
+void testVoidFormal(void arg) {
+}
+

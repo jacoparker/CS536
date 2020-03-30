@@ -283,14 +283,26 @@ class VarDeclNode extends DeclNode {
 
     public void nameAnalyze(SymTable symTable) {
         String type = myType.getType();
+        // check if invalid type
+        if (type.equals("void")) {
+            ErrMsg.fatal(
+                myId.getMyLineNum(),
+                myId.getMyCharNum(),
+                "Non-function declared void");
+            return;  // stop processing
+        }
         Sym symbol = new Sym(type);
         try {
             symTable.addDecl(myId.getMyStrVal(), symbol);
         } catch (DuplicateSymException e) {
-            // multiple declarations! Log error. TODO
-            ErrMsg.fatal(myId.getMyLineNum(), myId.getMyCharNum(), "Multiply declared identifier");
+            // multiple declarations! Log error.
+            ErrMsg.fatal(
+                myId.getMyLineNum(),
+                myId.getMyCharNum(),
+                "Multiply declared identifier"
+            );
         } catch (EmptySymTableException e) {
-            // do nothing since this means there was clearly no
+            // do nothing since this means there was clearly no duplicate
             System.err.println(e.toString());
         }
     }
@@ -366,10 +378,18 @@ class FormalDeclNode extends DeclNode {
     }
 
     public void nameAnalyze(SymTable symTable) {
-        String type = myId.getMyStrVal();
-        Sym sym = new Sym(myType.getType());
+        String name = myId.getMyStrVal();
+        String type = myType.getType();
+        if (type.equals("void")) {
+            ErrMsg.fatal(
+                myId.getMyLineNum(),
+                myId.getMyCharNum(),
+                "Non-function declared void");
+            return;  // stop processing
+        }
+        Sym sym = new Sym(type);
         try {
-            symTable.addDecl(type, sym);
+            symTable.addDecl(name, sym);
         } catch (DuplicateSymException e) {
             // another formal already has this name, do not add it to table
             ErrMsg.fatal(myId.getMyLineNum(), myId.getMyCharNum(), "Multiply declared identifier");
