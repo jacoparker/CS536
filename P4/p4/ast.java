@@ -188,6 +188,10 @@ class FormalsListNode extends ASTnode {
             ((FormalDeclNode)it.next()).nameAnalyze(symTable);
     }
 
+    public List<FormalDeclNode> getMyFormals() {
+        return myFormals;
+    }
+
     private List<FormalDeclNode> myFormals;
 }
 
@@ -340,11 +344,21 @@ class FnDeclNode extends DeclNode {
     public void nameAnalyze(SymTable symTable) {
         String type = myType.getType();
         // ensure function name is not in use with same params
-        Sym sym = new FnSym(type, null);  // TODO change from null
+        LinkedList<FormalDeclNode> formals = (LinkedList<FormalDeclNode>)myFormalsList.getMyFormals();
+        String[] args = new String[formals.size()];
+        Iterator it = formals.iterator();
+        int i=0;
+        while (it.hasNext())
+            args[i++] = ((FormalDeclNode)it.next()).getType();
+        Sym sym = new FnSym(type, args);  // TODO change from null
         try {
             symTable.addDecl(myId.getMyStrVal(), sym);
         } catch (DuplicateSymException e) {
-            ErrMsg.fatal(myId.getMyLineNum(), myId.getMyCharNum(), "Multiply declared identifier");
+            ErrMsg.fatal(
+                myId.getMyLineNum(),
+                myId.getMyCharNum(),
+                "Multiply declared identifier"
+            );
         } catch (EmptySymTableException e) {}
         // Then we add a new scope with params declared in it, even if an
         // error occurred.
@@ -394,6 +408,10 @@ class FormalDeclNode extends DeclNode {
             // another formal already has this name, do not add it to table
             ErrMsg.fatal(myId.getMyLineNum(), myId.getMyCharNum(), "Multiply declared identifier");
         } catch (EmptySymTableException e) {}
+    }
+
+    public String getType() {
+        return this.myType.getType();
     }
 
     private TypeNode myType;
@@ -878,7 +896,24 @@ class IdNode extends ExpNode {
     }
 
     public void unparse(PrintWriter p, int indent) {
-        p.print(myStrVal);
+        StringBuilder sb = new StringBuilder();
+        sb.append(myStrVal);
+        if (link != null) {
+            sb.append("(");
+            if (link instanceof FnSym) {
+                String[] args = ((FnSym)link).getArguments();
+                for (int i=0, n=args.length-1; i<n; i++) {
+                    sb.append(args[i]);
+                    sb.append(", ");
+                }
+                if (args.length != 0)
+                    sb.append(args[args.length-1]);
+                sb.append("->");
+            }
+            sb.append(link.getType());
+            sb.append(")");
+        }
+        p.print(sb.toString());
     }
 
     public void nameAnalyze(SymTable symTable) {

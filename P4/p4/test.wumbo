@@ -1,0 +1,21 @@
+/// test whether correct variable types are printed
+void testBasicSymType() {
+	int x;
+	bool y;
+	x = 10 + x;
+	y = !y;
+}
+
+/// test function call args have correct types and correct return type is given
+int testReturnAndArgTypes(int a, int b, bool c) {
+	int val1;
+	int val2;
+	bool val3;
+
+	testReturnAndArgTypes(val1, val2, val3);
+}
+
+/// test function with no args
+void testReturnNoArg() {
+	testReturnNoArg();
+}
