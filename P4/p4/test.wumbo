@@ -1,3 +1,8 @@
+/// test struct declaration
+struct Point {
+	int x;
+	int y;
+};
 
 /// test whether most recent scope var is used
 int val;
@@ -76,4 +81,10 @@ void testWhileStatement(bool a, bool b, bool c) {
 
 /// test a function with the same name as a variable inside
 int test(int test) {
+}
+
+/// test adding a new struct
+void testStructGeneral() {
+	/// test creating an instance and using it
+	struct Point p;
 }

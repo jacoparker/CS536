@@ -2,6 +2,17 @@
 int x;
 bool x;
 
+/// test multiply declared structs
+struct Point {
+	int x;
+	int y;
+};
+
+struct Point {
+	int x;
+	int y;
+};
+
 /// test multiply named formals
 void testMultiplyNamedFormals(int x, bool x) {
 	/// nothing
@@ -55,5 +66,16 @@ void testVoidVariable() {
 
 /// test a void formal type
 void testVoidFormal(void arg) {
+}
+
+/// test an invalid struct usage
+void testBadStruct() {
+	struct type p;
+}
+
+/// test multiple structs with the same name
+void testMultiplyDeclaredStructs() {
+	struct Point p;
+	struct Point p;
 }
 

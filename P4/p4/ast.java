@@ -163,6 +163,10 @@ class DeclListNode extends ASTnode {
         }
     }
 
+    public List<DeclNode> getMyDecls() {
+        return myDecls;
+    }
+
     private List<DeclNode> myDecls;
 }
 
@@ -287,15 +291,31 @@ class VarDeclNode extends DeclNode {
 
     public void nameAnalyze(SymTable symTable) {
         String type = myType.getType();
+        Sym symbol = null;
         // check if invalid type
         if (type.equals("void")) {
             ErrMsg.fatal(
                 myId.getMyLineNum(),
                 myId.getMyCharNum(),
-                "Non-function declared void");
+                "Non-function declared void"
+            );
             return;  // stop processing
+        } else if (!type.equals("int") && !type.equals("bool")) {
+            // this must be struct decl - find the struct declaration
+            try {
+                symbol = symTable.lookupGlobal(type);  // type should be a name
+            } catch (EmptySymTableException e) {}
+            if (symbol == null) {
+                ErrMsg.fatal(
+                    myId.getMyLineNum(),
+                    myId.getMyCharNum(),
+                    "Invalid name of struct type"
+                );
+                return;
+            }
+        } else {
+            symbol = new Sym(type);
         }
-        Sym symbol = new Sym(type);
         try {
             symTable.addDecl(myId.getMyStrVal(), symbol);
         } catch (DuplicateSymException e) {
@@ -406,7 +426,11 @@ class FormalDeclNode extends DeclNode {
             symTable.addDecl(name, sym);
         } catch (DuplicateSymException e) {
             // another formal already has this name, do not add it to table
-            ErrMsg.fatal(myId.getMyLineNum(), myId.getMyCharNum(), "Multiply declared identifier");
+            ErrMsg.fatal(
+                myId.getMyLineNum(),
+                myId.getMyCharNum(),
+                "Multiply declared identifier"
+            );
         } catch (EmptySymTableException e) {}
     }
 
@@ -435,7 +459,19 @@ class StructDeclNode extends DeclNode {
     }
 
     public void nameAnalyze(SymTable symTable) {
-        // TODO
+        Sym sym = new StructDefSym(myId.getMyStrVal());
+        try {
+            // attempt to add to sym table
+            symTable.addDecl(myId.getMyStrVal(), sym);
+        } catch (DuplicateSymException e) {
+            ErrMsg.fatal(
+                myId.getMyLineNum(),
+                myId.getMyCharNum(),
+                "Multiply declared identifier"
+            );
+        } catch (EmptySymTableException e) {
+            System.err.println(e.toString());
+        }
     }
 
     private IdNode myId;
