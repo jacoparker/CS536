@@ -4,6 +4,13 @@ struct Point {
 	int y;
 };
 
+int num;
+
+struct Coord {
+	int z;
+	struct Point p;
+};
+
 /// test whether most recent scope var is used
 int val;
 void testMostRecentScopeUsage() {
@@ -87,4 +94,17 @@ int test(int test) {
 void testStructGeneral() {
 	/// test creating an instance and using it
 	struct Point p;
+	p.x = 10;
+	p.y = 20;
+	p.y = p.y*p.x+p.y+2*p.x;
+}
+
+// test multi tier struct
+void testStructMultipleDotAccess() {
+	struct Coord c;
+	struct Point p;
+	c.p = p;
+	c.p.x = 10;
+	c.p.y = c.p.x + c.p.x/10;
+	c.z = 20;
 }

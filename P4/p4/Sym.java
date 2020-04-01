@@ -57,26 +57,13 @@ class FnSym extends Sym {
 *
 */
 class StructDefSym extends Sym {
-    StructDefSym(String structType) {
-        super(structType);
-    }
-
-    @Override
-    public String toString() {
-        return "struct " + getType();
-    }
-}
-
-/**
-* TODO comment this bad boy
-*
-*/
-class StructSym extends Sym {
     // map of names of vars and their types
-    private HashMap<String, Sym> fields;
+    private SymTable fields;
+    // total bytes used up by this struct
+    // private int size;
 
-    public StructSym(String type, HashMap<String, Sym> fields) {
-        super(type);
+    StructDefSym(String structType, SymTable fields) {
+        super(structType);
         this.fields = fields;
     }
 
@@ -85,7 +72,27 @@ class StructSym extends Sym {
         return "struct " + getType();
     }
 
-    public HashMap<String, Sym> getFields() {
+    public SymTable getFields() {
         return this.fields;
+    }
+
+    // public int getSize() {
+    //     return size;
+    // }
+}
+
+/**
+* TODO comment this bad boy
+*
+*/
+class StructSym extends Sym {
+
+    public StructSym(String type) {
+        super(type);
+    }
+
+    @Override
+    public String toString() {
+        return "struct " + getType();
     }
 }

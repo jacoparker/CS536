@@ -13,6 +13,12 @@ struct Point {
 	int y;
 };
 
+/// test structs of structs
+struct Coord {
+	int z;
+	struct Point p;
+};
+
 /// test multiply named formals
 void testMultiplyNamedFormals(int x, bool x) {
 	/// nothing
@@ -79,3 +85,33 @@ void testMultiplyDeclaredStructs() {
 	struct Point p;
 }
 
+
+/// test access of invalid field in rightmost dotaccess
+void testRightMostInvalidDotAccess() {
+	struct Point p;
+	p.z = 10;
+}
+
+/// test dot access of non struct
+void testDotAccessOfNonStruct() {
+	struct Point p;
+	p.x.y = 10;
+}
+
+/// test dot access of non struct with only one dot access
+void testDotAccessOfNonStructSingle() {
+	int x;
+	x.y = 10;
+}
+
+/// test dot access with multiple levels
+void testDotAccessMultiLevel() {
+	struct Coord c;
+	c.p.x.y = 10;
+}
+
+/// test dot access invalid field multiple levels
+void testDotAccessInvalidFieldMulti() {
+	struct Coord c;
+	c.p.z = 10;
+}

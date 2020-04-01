@@ -117,6 +117,10 @@ abstract class ASTnode {
     }
 }
 
+class StructTypes {
+    static public HashSet<String> structTypes = new HashSet<>();
+}
+
 // **********************************************************************
 // ProgramNode,  DeclListNode, FormalsListNode, FnBodyNode,
 // StmtListNode, ExpListNode
@@ -159,7 +163,10 @@ class DeclListNode extends ASTnode {
         // ensure declarations are valid!
         Iterator it = myDecls.iterator();
         while (it.hasNext()) {
-            ((DeclNode)it.next()).nameAnalyze(symTable);
+            DeclNode dn = (DeclNode)it.next();
+            if (dn instanceof StructDeclNode)
+                ((StructDeclNode)dn).nameAnalyze(symTable);
+            else dn.nameAnalyze(symTable);
         }
     }
 
@@ -303,9 +310,12 @@ class VarDeclNode extends DeclNode {
         } else if (!type.equals("int") && !type.equals("bool")) {
             // this must be struct decl - find the struct declaration
             try {
-                symbol = symTable.lookupGlobal(type);  // type should be a name
-            } catch (EmptySymTableException e) {}
-            if (symbol == null) {
+                // attempt to find the type of struct
+                symbol = symTable.lookupGlobal(type);
+            } catch (EmptySymTableException e) {
+                System.err.println(e.toString());
+            }
+            if (symbol == null && !StructTypes.structTypes.contains(type)) {
                 ErrMsg.fatal(
                     myId.getMyLineNum(),
                     myId.getMyCharNum(),
@@ -313,8 +323,11 @@ class VarDeclNode extends DeclNode {
                 );
                 return;
             }
+            symbol = new StructSym(type);
+            mySize = 1;  // hehe
         } else {
             symbol = new Sym(type);
+            mySize = NOT_STRUCT;
         }
         try {
             symTable.addDecl(myId.getMyStrVal(), symbol);
@@ -459,10 +472,13 @@ class StructDeclNode extends DeclNode {
     }
 
     public void nameAnalyze(SymTable symTable) {
-        Sym sym = new StructDefSym(myId.getMyStrVal());
+        SymTable fields = new SymTable();
+        myDeclList.nameAnalyze(fields);
+        Sym sym = new StructDefSym(myId.getMyStrVal(), fields);
         try {
             // attempt to add to sym table
             symTable.addDecl(myId.getMyStrVal(), sym);
+            StructTypes.structTypes.add(myId.getMyStrVal());
         } catch (DuplicateSymException e) {
             ErrMsg.fatal(
                 myId.getMyLineNum(),
@@ -980,11 +996,158 @@ class DotAccessExpNode extends ExpNode {
         myId = id;
     }
 
+    public void nameAnalyze(SymTable symTable) {
+        try {
+            // right can be any type
+            SymTable st = null;
+            // ensure the left is a struct type
+            if (myLoc instanceof DotAccessExpNode) {
+                st = ((DotAccessExpNode)myLoc).structAnalyze(symTable);
+            } else if (myLoc instanceof IdNode) {
+                // get the struct decl so we can grab the symtable for the struct
+                Sym stmp = symTable.lookupGlobal(((IdNode)myLoc).getMyStrVal());
+                StructSym ss = null;
+                if (stmp instanceof StructSym) {
+                    ss = (StructSym)stmp;
+                } else {
+                    ErrMsg.fatal(
+                        ((IdNode)myLoc).getMyLineNum(),
+                        ((IdNode)myLoc).getMyCharNum(),
+                        "Dot-access of non-struct type"
+                    );
+                    return;
+                }
+                if (ss == null) {
+                    ErrMsg.fatal(
+                        ((IdNode)myLoc).getMyLineNum(),
+                        ((IdNode)myLoc).getMyCharNum(),
+                        "Undeclared identifier"
+                    );
+                    return;
+                }
+                StructDefSym sds = (StructDefSym)symTable.lookupGlobal(ss.getType());
+                // get the symtable from the structdefsym
+                st = sds.getFields();
+            } else {
+                ErrMsg.fatal(
+                    myId.getMyLineNum(),
+                    myId.getMyCharNum(),
+                    "Dot-access of non-struct type"
+                );
+                return;  // stop processing
+            }
+            // check that right is in left's symtable
+            if (st == null) return;
+            Sym sym = st.lookupGlobal(myId.getMyStrVal());
+            if (sym == null) {
+                // report error
+                ErrMsg.fatal(
+                    myId.getMyLineNum(),
+                    myId.getMyCharNum(),
+                    "Invalid struct field name!"
+                );
+            } else {
+                // assign the link
+                myId.link = sym;
+            }
+        } catch (EmptySymTableException e) {
+            System.err.println(e.toString());
+        }
+    }
+
+    public SymTable structAnalyze(SymTable symTable) {
+        // ensure that the left element is a struct and is valid
+        try {
+            Sym sym = null;
+            if (myLoc instanceof DotAccessExpNode) {
+                SymTable st = ((DotAccessExpNode)myLoc).structAnalyze(symTable);
+                // error occurred - skip processing
+                if (st == null) return null;
+                // check that right is in left's symtable
+                sym = st.lookupGlobal(myId.getMyStrVal());
+                if (sym == null) {
+                    // the symbol is not in the struct, invalid field!
+                    ErrMsg.fatal(
+                        myId.getMyLineNum(),
+                        myId.getMyCharNum(),
+                        "Invalid struct field name"
+                    );
+                    return null;
+                }
+                String type = sym.getType();
+                if (type.equals("int") || type.equals("bool") || type.equals("void")) {
+                    ErrMsg.fatal(
+                        myId.getMyLineNum(),
+                        myId.getMyCharNum(),
+                        "Dot-access of non-struct type"
+                    );
+                    return null;
+                }
+                myId.link = sym;
+                if (sym instanceof StructDefSym)
+                    return ((StructDefSym)sym).getFields();
+            } else if (myLoc instanceof IdNode) {
+                // base case of recursively checking structs
+                // this will definitely be a struct and is furthest
+                // dot access operator to the left.
+                IdNode id = (IdNode)myLoc;
+                StructSym ss = (StructSym)symTable.lookupGlobal(id.getMyStrVal());
+                if (ss == null) {
+                    ErrMsg.fatal(
+                        myId.getMyLineNum(),
+                        myId.getMyCharNum(),
+                        "Invalid name of struct type"
+                    );
+                    return null;
+                }
+                StructDefSym sds = (StructDefSym)symTable.lookupGlobal(ss.getType());
+                SymTable st = sds.getFields();
+                // error occurred - skip processing
+                if (st == null) return null;
+                // check that right is in left's symtable
+                sym = st.lookupGlobal(myId.getMyStrVal());
+                if (sym == null) {
+                    ErrMsg.fatal(
+                        myId.getMyLineNum(),
+                        myId.getMyCharNum(),
+                        "Invalid struct field name"
+                    );
+                    return null;
+                }
+                String type = sym.getType();
+                if (type.equals("int") || type.equals("bool") || type.equals("void")) {
+                    ErrMsg.fatal(
+                        myId.getMyLineNum(),
+                        myId.getMyCharNum(),
+                        "Dot-access of non-struct type"
+                    );
+                    return null;
+                }
+                id.link = sym;
+                if (sym instanceof StructDefSym)
+                    return ((StructDefSym)sym).getFields();
+                return st;
+            } else {
+                ErrMsg.fatal(
+                    myId.getMyLineNum(),
+                    myId.getMyCharNum(),
+                    "Dot-access of non-struct type"
+                );
+                return null;  // stop processing, there is error
+            }
+        } catch (EmptySymTableException e) {}
+        return null;
+    }
+
     public void unparse(PrintWriter p, int indent) {
         p.print("(");
         myLoc.unparse(p, 0);
         p.print(").");
         myId.unparse(p, 0);
+    }
+
+    public IdNode getMyId() {
+        return myId;
     }
 
     private ExpNode myLoc;
