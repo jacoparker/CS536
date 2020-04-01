@@ -58,7 +58,8 @@ public class P4 {
         SymTable table = new SymTable();
         ((ProgramNode)root.value).nameAnalyze(table);
 
-        ((ASTnode)root.value).unparse(outFile, 0);
+        if (!ErrMsg.isError)
+            ((ASTnode)root.value).unparse(outFile, 0);
         outFile.close();
 
         return;
